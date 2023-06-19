@@ -40,10 +40,18 @@ public class RoomController {
   }
 
   @GetMapping
-  public ResponseEntity<?> getRoomsThroughPage(@RequestParam String type,
-                                               @RequestParam Integer page_size,
+  public ResponseEntity<?> getRoomsThroughPage(@RequestParam Integer page_size,
                                                @RequestParam Integer page) {
-    return ResponseEntity.ok(service.getRooms(page, page_size, type));
+    return ResponseEntity.ok(service.getRooms(page, page_size));
   }
 
+
+  @GetMapping("/me")
+  public ResponseEntity<?> me()
+  {
+    return ResponseEntity.ok("assalomu alaykum " +
+        "o'zim haqidam aytadigan bo'lsam 2 local " +
+        "companiyada faoliyat yuritdim. U yerda asason UI yoki integration jaroyonida qatnashdim" +
+        "Database bilan muammolar yetarlicha, Shu sababli ykby da o'zimni sinab ko'rmoqchiman");
+  }
 }

@@ -6,6 +6,7 @@ public enum Type {
   CONFERENCE("conference"),
   TEAM("team"),
   FOCUS("focus");
+
   private final String label;
   Type(String label) {
     this.label = label;
@@ -17,4 +18,6 @@ public enum Type {
         .findFirst()
         .orElseThrow(IllegalArgumentException::new);
   }
+
+
 }
