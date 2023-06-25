@@ -18,7 +18,7 @@ import org.ykby.service.RoomService;
 
 
 @RestController
-@RequestMapping("api/rooms")
+@RequestMapping("/api/rooms")
 @AllArgsConstructor
 public class RoomController {
   private final RoomService service;
