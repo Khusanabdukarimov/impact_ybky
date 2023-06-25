@@ -28,13 +28,13 @@ public class RoomController {
     return ResponseEntity.ok(service.retrieveRoom(id));
   }
 
-  @GetMapping("/{room}/available")
+  @GetMapping("{id}/availability")
   public ResponseEntity<?> getAvailability(@PathVariable("room") Integer id,
                                            @RequestParam(value = "date", required = false) LocalDate date) {
     return ResponseEntity.ok(service.getAvailability(id, date));
   }
 
-  @PostMapping("/{room_id}/book")
+  @PostMapping("/{id}/book")
   public ResponseEntity<?> bookRoom(@PathVariable("room_id") Integer room_id, @RequestBody Book booking) {
     return ResponseEntity.status(HttpStatus.CREATED).body(dateService.bookRoom( booking, room_id));
   }
