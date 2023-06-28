@@ -56,7 +56,7 @@
 ```
 
 - result
-```json5
+```json
 {
   "page": 0,
   "count": 4,
@@ -93,7 +93,4 @@
   resources/sql/room.sql file datalar uchun
   
 ```
-```text
- /api/rooms/me
- o'zim xaqimda qisqacha
-```
+
