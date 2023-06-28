@@ -57,7 +57,7 @@
 
 - result
 ```json5
-    {
+{
   "page": 0,
   "count": 4,
   "page_size": 4,
