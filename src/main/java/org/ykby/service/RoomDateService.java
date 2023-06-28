@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
@@ -21,15 +22,15 @@ public class RoomDateService {
   private final DateRepository repository;
   private final RoomRepository roomRepository;
   private final LocalDate TODAY = LocalDate.now();
-  private final LocalTime START_FIXED = LocalTime.of(9, 0, 0);
-  private final LocalTime END_FIXED = LocalTime.of(18, 0, 0);
+  private final LocalTime START_FIXED = LocalTime.of(0, 0, 0);
+  private final LocalTime END_FIXED = LocalTime.of(23, 59, 59);
 
 
   public boolean bookRoom(Book booking, Integer room_id) {
     List<RoomDate> availability = getDatesFromGivenDate(booking.start().toLocalDate(), room_id);
 
     if (!checkOfMiddleBooking(availability, booking.start(), booking.end())) {
-      throw new GoneException("bu xona bu vaqtda band");
+      throw new GoneException("uzr, siz tanlagan vaqtda xona band");
     }
 
     if (availability.size() < 1) {
@@ -41,17 +42,17 @@ public class RoomDateService {
         .filter(x -> x.getStart().getHour() <= booking.start().getHour())
         .toList();
 
+    if(duration.size()==0) throw new GoneException("bu xona band qilingan");
 
     RoomDate startBook = duration.get(duration.size() - 1);
     System.out.println(startBook.getStart() + " " + startBook.getEnd());
     repository.delete(startBook);
 
     RoomDate endBook = new RoomDate();
-    endBook.setStart(booking.end());
+    LocalDateTime time = booking.end();
+    endBook.setStart(time);
     endBook.setEnd(startBook.getEnd());
     endBook.setRoom(startBook.getRoom());
-
-    startBook.setActive(false);
     startBook.setEnd(booking.start());
 
 
@@ -68,7 +69,7 @@ public class RoomDateService {
     Optional<List<RoomDate>> dates = Optional
         .of(repository
             .findAll().stream().filter(x -> x.getRoom() != null)
-            .filter(x -> x.getRoom().getRoomId().equals(id)).toList()
+            .filter(x -> x.getRoom().getId().equals(id)).toList()
             .stream()
             .filter(e -> e.getStart()
                 .toLocalDate().equals(date))
@@ -88,12 +89,37 @@ public class RoomDateService {
 
   private boolean checkOfMiddleBooking(List<RoomDate> list, LocalDateTime start,
                                        LocalDateTime end) {
-    for (RoomDate date : list) {
-      if (date.getStart().getHour() > start.getHour() && date.getEnd().getHour() <= end.getHour()) {
+    int count = 0;
+    RoomDate last = null;
+    for (int i = 0; i < list.size(); i++) {
+      RoomDate date = list.get(i);
+
+      if (date.getStart().getHour() > start.getHour() && date.getEnd().getHour() < end.getHour()) {
         return false;
+      }else if(start.getHour() == date.getEnd().getHour()
+          && i != list.size()-1
+          && end.getHour() == list.get(i+1).getStart().getHour()) {
+         if( (date.getStart().getMinute() < start.getMinute()
+             || list.get(i+1).getStart().getMinute() < end.getMinute()) ) return false;
+         else if(list.get(i+1).getStart().getHour()>start.getMinute() && date.getEnd().getMinute()>end.getMinute())
+           return false;
+
+         if(start.getMinute() == date.getEnd().getMinute()
+             && list.get(i+1).getStart().getMinute()==end.getMinute())
+             return false;
+      }
+
+      if(i==list.size()-1){
+        last=date;
       }
     }
+      if(!Objects.isNull(last)) {
+        if(last.getStart().getHour() == start.getHour() && last.getEnd().getHour() <= end.getHour()) {
 
+          if(last.getStart().getMinute() < start.getMinute() || last.getEnd().getMinute() < end.getMinute())return false;
+        }
+        return last.getStart().getHour() <= start.getHour() && last.getEnd().getHour() >= end.getHour();
+      }
     return true;
   }
 }
